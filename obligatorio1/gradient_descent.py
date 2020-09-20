@@ -1,8 +1,10 @@
 import numpy as np
 
+
 class GradientDescent():
     def __init__(self, objetive):
         self.objetive = objetive
+        self.x_log = []
     
     def _gradient_descent_step(self, step, x, k, **kwargs):
         grad_x = self.objetive.backward(x)
@@ -16,7 +18,7 @@ class GradientDescent():
         
         for k in range(max_iter):
             x = self._gradient_descent_step(step, x, k, **kwargs)
-
+            self.x_log.append(x)
             # if _stop_condition_met():
                 # break
             
@@ -48,5 +50,10 @@ class GradientDescent():
     def _stop_condition_met(self):
         return False
 
-    def _decreasing(self, k, base=0.0001):
+    def _decreasing(self, k, base=0.001):
         return base / (k+1)
+
+        
+class ProjectedGradientDescent(GradientDescent):
+    def __init__(self):
+        super().__init__()

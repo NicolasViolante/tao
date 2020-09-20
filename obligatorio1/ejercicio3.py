@@ -1,8 +1,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from least_squares import LeastSquares
-from gradient_descent import GradientDescent
-            
+from obligatorio1.least_squares import LeastSquares
+from obligatorio1.gradient_descent import GradientDescent
+
+
 def compute_relative_error(x_log, x):
     """
     Returns relative error between final value x and previous predictions 
@@ -15,12 +16,22 @@ def compute_relative_error(x_log, x):
     return np.linalg.norm(x_log -x, axis=1)/np.linalg.norm(x)
 
 
-def solve_normal_equations(A,b):
+def solve_normal_equations(A, b):
     """
     Returns exact solution to least squares problem
     """
     x = np.matmul(np.linalg.pinv(np.matmul(np.transpose(A), A)), np.matmul(np.transpose(A),b))
     return x
+
+
+def save_error_log(error_log, step_schedule):
+    plt.figure(figsize=(8,8))
+    plt.plot(error_log, label=step_schedule)
+    plt.grid()
+    plt.ylabel("$\\frac{||x^* - x^t||}{||x^*||}$")
+    plt.xlabel('t')
+    plt.legend()
+    plt.savefig('./images/ejercicio3_{}.pdf'.format(step_schedule))
 
 
 if __name__ == '__main__':
@@ -36,25 +47,22 @@ if __name__ == '__main__':
     
     # Least Squares minimization
     #------------------------------------------------------------
-    max_iter = 500
-    step_schedules = ['decreasing']
-    
-    error_logs = []
-    for step in step_schedules:
-        least_squares = LeastSquares(A, b)
-        optimizer = GradientDescent(least_squares)
-        x = optimizer.solve(max_iter, step=step, verbose=True)
-        
-        # error_log = compute_relative_error(least_squares.x_log, x_ref)
-        # error_logs.append(error_log)
-    
-    # Plot error evolution
-    #------------------------------------------------------------
-    # plt.figure()
-    # for error_log, step_schedule in zip(error_logs, step_schedules):
-    #     plt.plot(error_log, label=step_schedule)
-    # plt.grid()
-    # plt.ylabel('Error relativo')
-    # plt.xlabel('Iteraciones')
-    # plt.legend()
-    # plt.savefig('./images/ejercicio3.pdf')
+    max_iter = 2000
+    least_squares = LeastSquares(A, b)
+
+    # Part a) Fixed step
+    optimizer = GradientDescent(least_squares)
+    x = optimizer.solve(max_iter, step=0.5/np.linalg.norm(A)**2, verbose=True)
+    error_log = compute_relative_error(optimizer.x_log, x_ref)
+    save_error_log(error_log, 'Paso fijo')
+
+    # Part b) Decreasing step
+    optimizer = GradientDescent(least_squares)
+    x = optimizer.solve(max_iter, step='decreasing', verbose=True)
+    error_log = compute_relative_error(optimizer.x_log, x_ref)
+    save_error_log(error_log, 'Paso decreciente')
+
+    # Part c) Line search
+
+    # Part d) Arminjo
+
