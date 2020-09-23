@@ -1,15 +1,16 @@
 import numpy as np
 
+
 class LeastSquares(object):
     """
     Inputs:
-        A : Numpy array of shape (M,N)
-        b : Numpy array of shape (M,)
+    - A : np array of shape (M,N)
+    - b : np array of shape (M,)
     """
     def __init__(self, A, b):
         self.A = A
         self.b = b
-        self.x_size = A.shape[1]
+        self.input_size = A.shape[1]
         
     def forward(self, x):
         """

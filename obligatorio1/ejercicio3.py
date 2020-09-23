@@ -1,68 +1,56 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from obligatorio1.least_squares import LeastSquares
-from obligatorio1.gradient_descent import GradientDescent
 
 
-def compute_relative_error(x_log, x):
-    """
-    Returns relative error between final value x and previous predictions 
-    stored in x_log 
-    
-    Inputs:
-        x : Numpy array of shape (N,)   
-        x_log : Numpy array of shape (iterations, N)
-    """
-    return np.linalg.norm(x_log -x, axis=1)/np.linalg.norm(x)
+class Function:
+    def __init__(self, f, domain, name):
+        self.f = f
+        self.domain = domain
+        self.name = name
+
+    def save_function_plot(self, title, show=False):
+        fig, ax = plt.subplots(figsize=(6, 6))
+        ax.plot(self.domain, self.f(self.domain))
+        ax.grid()
+        ax.set_xlabel('x')
+        ax.set_ylabel('function(x)')
+        ax.set_title(title)
+        fig.savefig('./images/ejercicio3_{}.png'.format(self.name))
+        if show:
+            plt.show()
 
 
-def solve_normal_equations(A, b):
-    """
-    Returns exact solution to least squares problem
-    """
-    x = np.matmul(np.linalg.pinv(np.matmul(np.transpose(A), A)), np.matmul(np.transpose(A),b))
-    return x
+if __name__ == "__main__":
+    # Part a)
+    #-------------------------------------------------------------------------------------------------------------------
+    f1 = Function(f=lambda x: 4*x**4 - x**3 - 4*x**2 + 1,
+                  domain=np.linspace(-1.0, 1.0, 500),
+                  name='f1')
+    f1.save_function_plot(title="$4x^4 -x^3 -4x^2 + 1$")
 
+    # Part b)
+    # -------------------------------------------------------------------------------------------------------------------
+    f2 = Function(f=lambda x:x**3,
+                  domain=np.linspace(-1.0, 1.0, 500),
+                  name='f2')
+    f2.save_function_plot(title="$x^3$")
 
-def save_error_log(error_log, step_schedule):
-    plt.figure(figsize=(8,8))
-    plt.plot(error_log, label=step_schedule)
-    plt.grid()
-    plt.ylabel("$\\frac{||x^* - x^t||}{||x^*||}$")
-    plt.xlabel('t')
-    plt.legend()
-    plt.savefig('./images/ejercicio3_{}.pdf'.format(step_schedule))
+    # Part c)
+    # -------------------------------------------------------------------------------------------------------------------
+    a = 0.5
+    f3 = Function(f=lambda x: (x-a)**2 + 1,
+                  domain=np.linspace(-1.0, 1.0, 500),
+                  name='f3_a={}'.format(a))
+    f3.save_function_plot(title="$(x-{})^2+1$".format(a))
 
+    a = 4
+    f3.f = lambda x: (x-a)**2 + 1
+    f3.name = 'f3_a={}'.format(a)
+    f3.save_function_plot(title="$(x-{})^2+1$".format(a))
 
-if __name__ == '__main__':
-    # Load data
-    #------------------------------------------------------------
-    A = np.loadtxt('./archivos_ob1/A.asc')
-    b = np.loadtxt('./archivos_ob1/b.asc')
+    # Part d)
+    # -------------------------------------------------------------------------------------------------------------------
 
-    # Reference solution
-    #------------------------------------------------------------
-    x_ref = solve_normal_equations(A,b)
-    print('Reference solution is x = {}'.format(x_ref))
-    
-    # Least Squares minimization
-    #------------------------------------------------------------
-    max_iter = 2000
-    least_squares = LeastSquares(A, b)
+    print()
 
-    # Part a) Fixed step
-    optimizer = GradientDescent(least_squares)
-    x = optimizer.solve(max_iter, step=0.5/np.linalg.norm(A)**2, verbose=True)
-    error_log = compute_relative_error(optimizer.x_log, x_ref)
-    save_error_log(error_log, 'Paso fijo')
-
-    # Part b) Decreasing step
-    optimizer = GradientDescent(least_squares)
-    x = optimizer.solve(max_iter, step='decreasing', verbose=True)
-    error_log = compute_relative_error(optimizer.x_log, x_ref)
-    save_error_log(error_log, 'Paso decreciente')
-
-    # Part c) Line search
-
-    # Part d) Arminjo
 
