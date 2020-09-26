@@ -27,4 +27,7 @@ class LeastSquares(object):
         u = np.matmul(self.A, x) - self.b      # shape (M,)
         grad_u = 2*u 
         grad_x = np.matmul(grad_u, self.A)     # shape (N,)
-        return grad_x 
+        return grad_x
+
+    def __call__(self, x):
+        return self.forward(x)
