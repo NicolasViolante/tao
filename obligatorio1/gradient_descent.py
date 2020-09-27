@@ -63,17 +63,12 @@ class GradientDescent:
 
 
 class ProjectedGradientDescent(GradientDescent):
-    def __init__(self, cost_function, cfa_radius):
+    def __init__(self, cost_function, projection_function):
         super().__init__(cost_function)
-        self.cfa_radius = cfa_radius
+        self.projection_function = projection_function
 
     def _update_position(self, x, learning_step, direction):
-        return self.project_to_cfa(x + learning_step*direction)
-
-    def project_to_cfa(self, x):
-        if np.linalg.norm(x) > self.cfa_radius:
-            return (self.cfa_radius*x) / np.linalg.norm(x)
-        return x
+        return self.projection_function(x + learning_step*direction)
 
 
 #-----------------------------------------------------------------------------------------------------------------------

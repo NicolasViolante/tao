@@ -3,8 +3,7 @@ import matplotlib.pyplot as plt
 from obligatorio1.least_squares import LeastSquares
 from obligatorio1.gradient_descent import GradientDescent
 
-font = {'family': 'normal',
-        'size': 16}
+font = {'size': 16}
 plt.rc('font', **font)
 
 
@@ -53,6 +52,7 @@ if __name__ == '__main__':
     #-------------------------------------------------------------------------------------------------------------------
     max_iter = 1000
     least_squares = LeastSquares(A, b)
+    iters = []
 
     # Part a) Fixed step
     optimizer = GradientDescent(least_squares)
@@ -60,22 +60,34 @@ if __name__ == '__main__':
     x = optimizer.solve(max_iter, 'fixed', verbose=True, fixed_step=fixed_step)
     error_log = compute_relative_error(optimizer.x_log, x_ref)
     save_error_log(error_log, './images/ejercicio4_paso_fijo.png')
+    iters.append(len(optimizer.x_log))
 
     # Part b) Decreasing step
     optimizer = GradientDescent(least_squares)
     x = optimizer.solve(max_iter, 'decreasing', verbose=True, base=0.001)
     error_log = compute_relative_error(optimizer.x_log, x_ref)
     save_error_log(error_log, './images/ejercicio4_decreciente.png')
+    iters.append(len(optimizer.x_log))
 
     # Part c) Line search
     optimizer = GradientDescent(least_squares)
     x = optimizer.solve(max_iter, 'line_search', verbose=True, max_step=0.01, n_points=1000)
     error_log = compute_relative_error(optimizer.x_log, x_ref)
     save_error_log(error_log, './images/ejercicio4_line_search.png')
+    iters.append(len(optimizer.x_log))
 
     # Part d) Armijo
     optimizer = GradientDescent(least_squares)
-    x = optimizer.solve(max_iter, 'armijo', verbose=True, max_step=1e-4, sigma=0.1, beta=0.5)
+    x = optimizer.solve(max_iter, 'armijo', verbose=True, max_step=0.01, sigma=0.1, beta=0.5)
     error_log = compute_relative_error(optimizer.x_log, x_ref)
     save_error_log(error_log, './images/ejercicio4_armijo.png')
+    iters.append(len(optimizer.x_log))
+
+    # Bar plot iterations
+    plt.figure(figsize=(12, 8))
+    plt.bar(np.arange(len(iters)), height=iters)
+    plt.title('Cantidad de iteraciones')
+    plt.ylabel('t')
+    plt.xticks(np.arange(len(iters)), labels=['Fijo', 'Decreiente', 'Line Search', 'Armijo'])
+    plt.savefig('./images/ejercicio4_iters.png')
 
