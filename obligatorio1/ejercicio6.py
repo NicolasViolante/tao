@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 from obligatorio1.gradient_descent import ProjectedGradientDescent
 
 
@@ -23,29 +24,65 @@ class CostFunction:
         return self.forward(x_in)
 
 
-
-def plot_x_log(x_log):
+def save_trajectories(x_log, filepath, show=False):
     x_log = np.array(x_log)
     x, y = x_log[:,0], x_log[:,1]
     plt.figure()
     plt.scatter(x,y)
+    plt.plot(x,y)
     plt.grid()
-    plt.show()
+    plt.title('Trayectoria de $(x^t, y^t)$')
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.savefig(filepath)
+    if show:
+        plt.show()
 
+
+def save_point_distance_evolution(x_log, filepath, show=False):
+    distances = np.linalg.norm(np.diff(x_log, axis=0), axis=1)
+
+    plt.figure()
+    plt.plot(distances)
+    plt.title('Evolución de la distancia entre puntos de $(x^t, y^t)$')
+    plt.ylabel('$|| (x^t, y^t) - (x^{t-1}, y^{t-1}) ||$')
+    plt.xlabel('t')
+    plt.grid()
+    plt.savefig(filepath)
+    if show:
+        plt.show()
+
+
+def save_function_evolution(cost_function_log, filepath, show=False):
+    plt.figure()
+    plt.plot(cost_function_log)
+    plt.title('Evolución de $f(x^t,x^t)$')
+    plt.ylabel('$f(x^t,x^t)$')
+    plt.xlabel('t')
+    plt.grid()
+    plt.savefig(filepath)
+    if show:
+        plt.show()
+        
 
 if __name__ == '__main__':
-    max_iter=200
+    max_iter = 1000
     cost_function = CostFunction()
-    # Parte c)
-    # i) Paso decreciente
-    # optimizer = ProjectedGradientDescent(cost_function, cfa_radius=0.25)
-    # x = optimizer.solve(max_iter, 'line_search', verbose=True, max_step=1e-3, n_points=100)
-    # plot_x_log(optimizer.x_log)
+    # Part c)
+    # i) Line search
+    optimizer = ProjectedGradientDescent(cost_function, cfa_radius=0.25)
+    x = optimizer.solve(max_iter, 'line_search', verbose=True, max_step=1., n_points=1000)
+    cost_function_log = [cost_function(x) for x in optimizer.x_log]
+    save_trajectories(optimizer.x_log, './images/ejercicio6_line_search_traj.png')
+    save_point_distance_evolution(optimizer.x_log, './images/ejercicio6_line_search_diff.png')
+    save_function_evolution(cost_function_log, './images/ejercicio6_line_search_f_log.png')
 
-    # Parte c)
-    # ii) Linea search
-    optimizer = ProjectedGradientDescent(cost_function, cfa_radius=1.25)
+    # Part c)
+    # ii) Decreasing step
+    optimizer = ProjectedGradientDescent(cost_function, cfa_radius=0.25)
     x = optimizer.solve(max_iter, 'decreasing', verbose=True, base=1.)
-    plot_x_log(optimizer.x_log)
+    cost_function_log = [cost_function(x) for x in optimizer.x_log]
+    save_trajectories(optimizer.x_log, './images/ejercicio6_decreasing_traj.png')
+    save_point_distance_evolution(optimizer.x_log, './images/ejercicio6_decreasing_diff.png')
+    save_function_evolution(cost_function_log, './images/ejercicio6_decreasing_f_log.png')
 
-    print()

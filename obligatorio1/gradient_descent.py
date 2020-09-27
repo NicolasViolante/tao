@@ -9,32 +9,20 @@ class GradientDescent:
     def solve(self, max_iter, strategy, verbose=False, **kwargs):
 
         x = self._initialize()
+        self.x_log.append(x)
         learning_step_strategy = self._get_learning_step_strategy(strategy, **kwargs)
 
         for k in range(max_iter):
             x = self._gradient_descent_step(x, learning_step_strategy)
 
-            # if self._is_stop_condition_met():
-            #     break
+            if self._is_stop_condition_met():
+                break
 
         if verbose:
             print(f'Optimal solution is x = {x}. {k+1} iterations')
 
         return x
 
-
-    def _initialize(self):
-        return np.zeros(self.cost_function.input_size)
-
-    def _is_stop_condition_met(self, min_improvement=1e-8):
-        if len(self.x_log) >= 2:
-            improvement = np.linalg.norm(self.x_log[-1] - self.x_log[-2])
-            return improvement <= min_improvement
-        return False
-
-    @staticmethod
-    def _update_position(x, learning_step, direction):
-        return x + learning_step*direction
 
     def _gradient_descent_step(self, x, learning_step_strategy):
         grad_x = self.cost_function.backward(x)
@@ -50,6 +38,10 @@ class GradientDescent:
         return x
 
     @staticmethod
+    def _update_position(x, learning_step, direction):
+        return x + learning_step*direction
+
+    @staticmethod
     def _get_learning_step_strategy(strategy, **kwargs):
         step_strategies = {'fixed': FixedStep,
                            'decreasing': DecreasingStep,
@@ -58,6 +50,15 @@ class GradientDescent:
         if strategy not in step_strategies:
             raise ValueError(f'Unknown learning step strategy: {strategy}')
         return step_strategies[strategy].create(**kwargs)
+
+    def _initialize(self):
+        return np.zeros(self.cost_function.input_size)
+
+    def _is_stop_condition_met(self, min_improvement=1e-8):
+        if len(self.x_log) >= 2:
+            improvement = np.linalg.norm(self.x_log[-1] - self.x_log[-2])
+            return improvement <= min_improvement
+        return False
 
 
 
